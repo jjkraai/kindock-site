@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KinDock Family Wall Display</title>
+<meta name="description" content="KinDock puts your family's calendars, chores, lists, meals and photos on one screen. Kids earn stars for chores and work toward rewards you choose.">
+<meta property="og:title" content="KinDock: the whole family on the same page">
+<meta property="og:description" content="Calendars, chores with star rewards, lists, meals and photos on one screen in your kitchen.">
+<meta property="og:image" content="img/board-family.jpg">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono&display=swap">
+<style>
+
+/* Layout idea: the page is a kitchen wall in the evening. Deep plum walls, the board glowing in a walnut frame,
+   sticky-note colors reserved for the chores story, the one loud section. */
+:root {
+  --wall: #1d1520;
+  --wall-2: #271c2b;
+  --panel: #2f2334;
+  --line: #45364a;
+  --ink: #f6eee6;
+  --ink-dim: #c9bcc5;
+  --ink-faint: #94859a;
+  --marigold: #f2a65a;
+  --marigold-deep: #e08a3a;
+  --star: #ffd257;
+  --walnut: #5b3a24;
+  --note-yellow: #ffe38a; --note-pink: #ffb8cf; --note-blue: #a9d4ff; --note-green: #bfe8a8;
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --f-body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+body { margin: 0; background: var(--wall); color: var(--ink); font-family: var(--f-body); font-size: 18px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--marigold); }
+:focus-visible { outline: 3px solid var(--marigold); outline-offset: 3px; border-radius: 6px; }
+.wrap { width: min(1180px, 100% - 40px); margin-inline: auto; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h2 { font-size: clamp(32px, 4.4vw, 54px); font-weight: 700; line-height: 1.04; letter-spacing: -.02em; }
+h3 { font-size: 22px; font-weight: 700; line-height: 1.2; }
+p { margin: 0; }
+.eyebrow { font-family: var(--f-mono); font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--marigold); }
+.lede { font-size: 20px; color: var(--ink-dim); max-width: 34em; }
+.btn { display: inline-flex; align-items: center; gap: 10px; font: 600 17px var(--f-body); text-decoration: none; padding: 14px 22px; border-radius: 999px; border: 2px solid transparent; cursor: pointer; transition: transform .15s, background .15s; }
+.btn:hover { transform: translateY(-1px); }
+.btn-primary { background: var(--marigold); color: #2a1a10; }
+.btn-primary:hover { background: #f7b874; }
+.btn-ghost { border-color: var(--line); color: var(--ink); background: transparent; }
+.btn-ghost:hover { border-color: var(--ink-faint); }
+
+/* Nav */
+.nav { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--wall) 86%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 68px; }
+.logo { display: flex; align-items: center; gap: 10px; font: 700 22px var(--f-display); color: var(--ink); text-decoration: none; letter-spacing: -.01em; }
+.logo img { width: 32px; height: 32px; border-radius: 8px; }
+.nav-links { display: flex; gap: 26px; align-items: center; }
+.nav-links a { color: var(--ink-dim); text-decoration: none; font-weight: 500; font-size: 16px; }
+.nav-links a:hover { color: var(--ink); }
+.nav .btn { padding: 10px 18px; font-size: 15px; }
+.nav-links a.btn-primary { color: #2a1a10; }
+@media (max-width: 820px) { .nav-links a:not(.btn) { display: none; } }
+
+/* Hero */
+.hero { padding: 72px 0 40px; position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: -20% -10% auto auto; width: 70%; height: 90%; background: radial-gradient(closest-side, rgba(242,166,90,.16), transparent); pointer-events: none; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 56px; align-items: center; }
+.hero h1 { font-size: clamp(44px, 6.4vw, 86px); font-weight: 700; line-height: .98; letter-spacing: -.035em; }
+.hero h1 .stroke { color: var(--marigold); }
+.hero .lede { margin-top: 22px; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.hero-facts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 28px; font-family: var(--f-mono); font-size: 13px; color: var(--ink-faint); letter-spacing: .04em; }
+.hero-facts span::before { content: "✓ "; color: var(--marigold); }
+.frame { position: relative; padding: 18px; border-radius: 10px; background: linear-gradient(135deg, #7a5132 0%, var(--walnut) 35%, #3f2817 70%, #6b4529 100%); box-shadow: 0 30px 70px rgba(0,0,0,.55), inset 0 0 0 2px rgba(255,255,255,.06); }
+.frame::after { content: ""; position: absolute; inset: 18px; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.6); pointer-events: none; }
+.frame img { border-radius: 2px; }
+.frame .note { position: absolute; right: -14px; bottom: -22px; width: 150px; padding: 14px 14px 18px; background: var(--note-yellow); color: #3a3222; font: 500 15px/1.3 var(--f-body); border-radius: 3px 3px 14px 3px; box-shadow: 0 10px 22px rgba(0,0,0,.4); transform: rotate(4deg); }
+@media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+/* Works with strip */
+.strip { border-block: 1px solid var(--line); background: var(--wall-2); }
+.strip .wrap { display: flex; flex-wrap: wrap; gap: 10px 34px; align-items: center; justify-content: center; padding: 20px 0; font-size: 15px; color: var(--ink-dim); }
+.strip b { font-family: var(--f-mono); font-weight: 400; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+
+section { padding: 96px 0; }
+.section-head { display: grid; gap: 14px; max-width: 760px; margin-bottom: 44px; }
+
+
+
+/* Name meaning: a dictionary entry */
+.meaning { padding: 64px 0 8px; }
+.meaning-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 48px; align-items: start; padding-bottom: 40px; border-bottom: 1px solid var(--line); }
+.entry .word { font: 700 clamp(48px, 7vw, 92px)/.95 var(--f-display); letter-spacing: -.03em; }
+.entry .word span { color: var(--marigold); padding: 0 .04em; }
+.entry .say { font-family: var(--f-mono); font-size: 16px; color: var(--ink-faint); margin-top: 12px; }
+.defs { margin: 0; display: grid; gap: 18px; }
+.defs div { display: grid; grid-template-columns: 150px 1fr; gap: 18px; align-items: baseline; }
+.defs dt b { font: 700 24px var(--f-display); color: var(--ink); }
+.defs dt i { font-family: var(--f-mono); font-style: normal; font-size: 13px; color: var(--ink-faint); margin-left: 6px; }
+.defs dd { margin: 0; color: var(--ink-dim); font-size: 18px; }
+.defs .whole { padding-top: 18px; border-top: 1px dashed var(--line); }
+.defs .whole dt b { color: var(--marigold); }
+.defs .whole dd { color: var(--ink); font-weight: 500; }
+.together { padding-top: 64px; }
+@media (max-width: 820px) { .meaning-grid { grid-template-columns: 1fr; gap: 24px; } .defs div { grid-template-columns: 1fr; gap: 4px; } }
+
+/* Together */
+.together { padding-bottom: 72px; padding-top: 64px; }
+.moments { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.moment { padding: 22px 22px 24px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); display: grid; gap: 8px; align-content: start; border-top: 4px solid var(--c); }
+.moment:nth-child(1) { --c: var(--note-yellow); } .moment:nth-child(2) { --c: var(--note-blue); } .moment:nth-child(3) { --c: var(--marigold); } .moment:nth-child(4) { --c: var(--note-pink); }
+.moment .time { font-family: var(--f-mono); font-size: 13px; letter-spacing: .08em; color: var(--ink-faint); }
+.moment h3 { font-size: 20px; }
+.moment p:not(.time) { color: var(--ink-dim); font-size: 16px; }
+.together-points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--line); }
+.together-points h3 { font-size: 18px; margin-bottom: 6px; }
+.together-points p { color: var(--ink-dim); font-size: 16px; }
+@media (max-width: 1000px) { .moments { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .moments, .together-points { grid-template-columns: 1fr; } }
+
+/* Chores: the loud section */
+.chores { background: linear-gradient(180deg, var(--wall) 0%, #2b1d2e 100%); position: relative; }
+.chores-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 56px; align-items: start; }
+.loop { display: grid; gap: 14px; counter-reset: loop; margin: 0; padding: 0; list-style: none; }
+.loop li { counter-increment: loop; display: grid; grid-template-columns: 52px 1fr; gap: 16px; align-items: start; padding: 18px 20px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
+.loop li::before { content: counter(loop); width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font: 700 22px var(--f-display); color: #2a1a10; background: var(--c, var(--marigold)); }
+.loop li:nth-child(1) { --c: var(--note-blue); } .loop li:nth-child(2) { --c: var(--note-pink); } .loop li:nth-child(3) { --c: var(--note-green); } .loop li:nth-child(4) { --c: var(--star); }
+.loop h3 { font-size: 20px; margin-bottom: 4px; }
+.loop p { color: var(--ink-dim); font-size: 16px; }
+
+/* Try-it chore chart */
+.demo { position: sticky; top: 96px; background: #15101a; border: 1px solid var(--line); border-radius: 22px; padding: 22px; box-shadow: 0 24px 60px rgba(0,0,0,.45); overflow: hidden; }
+.demo canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.demo-top { display: flex; align-items: center; gap: 14px; }
+.kid { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-size: 30px; background: #3d6b4a; box-shadow: 0 0 0 3px #ff8ab0; flex: none; }
+.demo-title { flex: 1; min-width: 0; }
+.demo-title h3 { font-size: 24px; }
+.bar { height: 10px; border-radius: 99px; background: #2c2330; margin-top: 8px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: #ff8ab0; border-radius: inherit; transition: width .35s ease; }
+.demo-sub { font-size: 14px; color: var(--ink-faint); margin-top: 6px; }
+.stars { text-align: right; flex: none; }
+.stars b { font: 700 34px/1 var(--f-display); color: var(--ink); display: flex; align-items: center; gap: 6px; justify-content: flex-end; font-variant-numeric: tabular-nums; }
+.stars b span { color: var(--star); font-size: 30px; }
+.stars small { display: block; font-size: 12px; color: var(--ink-faint); }
+.reward { margin-top: 16px; padding: 12px 14px; border-radius: 12px; background: #221a27; display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--ink-dim); }
+.reward .rbar { flex: 1; height: 8px; border-radius: 99px; background: #3a2e40; overflow: hidden; }
+.reward .rbar i { display: block; height: 100%; width: 70%; background: var(--star); transition: width .35s ease; }
+.reward strong { color: var(--ink); font-weight: 600; white-space: nowrap; }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.tile { position: relative; display: grid; justify-items: center; gap: 4px; padding: 18px 10px 14px; border-radius: 16px; border: 2px solid #2f2636; background: #1e1823; color: var(--ink); font: 600 16px var(--f-body); cursor: pointer; transition: transform .12s, background .2s, border-color .2s; }
+.tile:hover { border-color: #4a3c52; }
+.tile:active { transform: scale(.97); }
+.tile .ic { font-size: 40px; line-height: 1.1; }
+.tile .st { color: var(--star); font-size: 14px; letter-spacing: 2px; }
+.tile[aria-pressed="true"] { background: #3a2433; border-color: #ff8ab0; color: var(--ink-dim); }
+.tile[aria-pressed="true"]::after { content: "✓"; position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%; background: #ff8ab0; color: #fff; display: grid; place-items: center; font-size: 14px; font-weight: 700; }
+.demo-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 13px; color: var(--ink-faint); gap: 10px; }
+.demo-foot button { font: 500 13px var(--f-body); color: var(--ink-dim); background: none; border: 1px solid var(--line); border-radius: 99px; padding: 6px 12px; cursor: pointer; }
+.done-msg { min-height: 1.4em; font: 600 15px var(--f-body); color: var(--star); text-align: center; margin-top: 10px; }
+.parent-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 42px; }
+.parent-row div { padding: 18px; border-radius: 14px; border: 1px dashed var(--line); }
+.parent-row h3 { font-size: 17px; margin-bottom: 4px; }
+.parent-row p { font-size: 15px; color: var(--ink-dim); }
+.shot-wide { margin-top: 52px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 20px 50px rgba(0,0,0,.4); }
+.caption { font-size: 14px; color: var(--ink-faint); margin-top: 10px; }
+@media (max-width: 960px) { .chores-grid { grid-template-columns: 1fr; } .demo { position: relative; top: 0; } .parent-row { grid-template-columns: 1fr; } }
+
+/* Features */
+.features { background: var(--wall-2); }
+.fgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.f { background: var(--wall-2); padding: 26px 24px 28px; display: grid; gap: 8px; align-content: start; }
+.f .tag { font-family: var(--f-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--marigold); }
+.f p { color: var(--ink-dim); font-size: 16px; }
+@media (max-width: 900px) { .fgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .fgrid { grid-template-columns: 1fr; } }
+
+/* Layouts */
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+.tabs button { font: 600 15px var(--f-body); color: var(--ink-dim); background: var(--panel); border: 1px solid var(--line); border-radius: 99px; padding: 9px 16px; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--marigold); color: #2a1a10; border-color: var(--marigold); }
+.layout-view { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 36px; align-items: center; }
+.layout-view figure { margin: 0; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #000; }
+.layout-view figure.tall { max-width: 360px; justify-self: center; }
+.layout-view h3 { font-size: 26px; margin-bottom: 10px; }
+.layout-view p { color: var(--ink-dim); }
+@media (max-width: 860px) { .layout-view { grid-template-columns: 1fr; } }
+
+/* Compare */
+.compare table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 16px; }
+.compare th, .compare td { padding: 16px 18px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+.compare thead th { font-family: var(--f-mono); font-weight: 400; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+.compare thead th.us { color: var(--marigold); }
+.compare td.us { background: rgba(242,166,90,.08); color: var(--ink); font-weight: 600; }
+.compare td.them { color: var(--ink-dim); }
+.compare tbody th { font-weight: 600; color: var(--ink); width: 34%; }
+.table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; }
+.fine { font-size: 13px; color: var(--ink-faint); margin-top: 14px; max-width: 60em; }
+
+
+/* Privacy: a standout panel */
+.privacy { padding: 24px 0 96px; }
+.privacy-panel { position: relative; border-radius: 26px; padding: 52px; background: radial-gradient(120% 140% at 0% 0%, rgba(242,166,90,.16), transparent 55%), #1a1320; border: 2px solid var(--marigold); box-shadow: 0 30px 80px rgba(0,0,0,.45); overflow: hidden; }
+.privacy-panel::before { content: ""; position: absolute; right: -60px; top: -60px; width: 280px; height: 280px; background: no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 6 10 14v15c0 14 9.5 24.5 22 29 12.5-4.5 22-15 22-29V14z' fill='none' stroke='%23f2a65a' stroke-width='2.5' stroke-linejoin='round' opacity='.22'/%3E%3Cpath d='M22 33l7 7 13-14' fill='none' stroke='%23f2a65a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' opacity='.22'/%3E%3C/svg%3E"); pointer-events: none; }
+.privacy-head { display: grid; gap: 14px; max-width: 760px; position: relative; }
+.privacy-head h2 { font-size: clamp(36px, 5vw, 62px); }
+.privacy-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; margin-top: 38px; position: relative; }
+.pcol { padding: 26px 26px 24px; border-radius: 18px; background: rgba(255,255,255,.03); border: 1px solid var(--line); }
+.pcol h3 { display: flex; align-items: center; gap: 10px; font-size: 20px; margin-bottom: 12px; }
+.pcol ul { margin: 0; padding-left: 20px; display: grid; gap: 9px; color: var(--ink-dim); font-size: 16px; }
+.pcol li::marker { color: var(--marigold); }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.dot.home { background: var(--note-green); box-shadow: 0 0 0 4px rgba(191,232,168,.18); }
+.dot.net { background: var(--note-blue); box-shadow: 0 0 0 4px rgba(169,212,255,.18); }
+.pnote { margin-top: 16px; font-weight: 600; color: var(--ink); }
+.privacy-foot { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; position: relative; }
+.privacy-foot span { font-family: var(--f-mono); font-size: 13px; letter-spacing: .04em; padding: 8px 14px; border-radius: 99px; border: 1px solid var(--line); color: var(--ink-dim); }
+.privacy-foot span::before { content: "✓ "; color: var(--marigold); }
+@media (max-width: 820px) { .privacy-panel { padding: 30px 22px; } .privacy-grid { grid-template-columns: 1fr; } }
+
+/* Privacy + setup */
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.card { padding: 30px; border-radius: 18px; background: var(--panel); border: 1px solid var(--line); display: grid; gap: 12px; align-content: start; }
+.card ul, .card ol { margin: 0; padding-left: 20px; color: var(--ink-dim); display: grid; gap: 8px; }
+.card li::marker { color: var(--marigold); }
+@media (max-width: 860px) { .two { grid-template-columns: 1fr; } }
+
+/* FAQ */
+.faq { display: grid; gap: 10px; max-width: 860px; }
+.faq details { border: 1px solid var(--line); border-radius: 14px; background: var(--wall-2); }
+.faq summary { cursor: pointer; padding: 18px 22px; font-weight: 600; font-size: 18px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; color: var(--marigold); font-size: 24px; line-height: 1; }
+.faq details[open] summary::after { content: "–"; }
+.faq details p { padding: 0 22px 20px; color: var(--ink-dim); }
+
+/* Final CTA */
+.final { text-align: left; }
+.final .card { background: linear-gradient(135deg, #3a2633, #2a1d2f); padding: 48px; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 28px; }
+.final h2 { font-size: clamp(30px, 3.6vw, 44px); }
+@media (max-width: 760px) { .final .card { grid-template-columns: 1fr; padding: 30px; } }
+footer { padding: 40px 0 56px; border-top: 1px solid var(--line); color: var(--ink-faint); font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top"><img src="img/icon.png" alt="">KinDock</a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#together">Family</a>
+      <a href="#chores">Chores &amp; rewards</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#features">Features</a>
+      <a href="#compare">Why KinDock</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-primary" href="#get">Get KinDock</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">The family wall display</p>
+        <h1 style="margin-top:14px">The whole family on the <span class="stroke">same page</span>.</h1>
+        <p class="lede">Everyone's calendars, the chore chart, grocery lists, this week's dinners and your family photos, on one screen in the kitchen. One look on the way out the door and everybody knows what today holds, including whose turn it is to feed the dog.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#get">Get KinDock</a>
+          <a class="btn btn-ghost" href="#chores">Try the chore chart</a>
+        </div>
+        <div class="hero-facts"><span>No monthly fee</span><span>Your family's info stays at home, never on our servers</span><span>Works with the calendars you already use</span><span>Set up from your phone</span></div>
+      </div>
+      <div class="frame">
+        <img src="img/board-family.jpg" width="1600" height="900" alt="KinDock in the Family layout: a column for each person with today's events, to-dos and sticky notes, plus the weather and a 6-day forecast across the top.">
+        <div class="note">Soccer at 5. Cleats are by the door!</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="strip">
+    <div class="wrap">
+      <b>Works with</b>
+      <span>Google Calendar</span><span>iPhone &amp; iCloud Calendar</span><span>Outlook</span><span>School &amp; sports calendars</span><span>Google Photos &amp; iCloud shared albums</span><span>Any TV or monitor</span>
+    </div>
+  </div>
+
+  <section class="meaning" aria-labelledby="meaning-word">
+    <div class="wrap meaning-grid">
+      <div class="entry">
+        <p class="word" id="meaning-word">Kin<span>·</span>Dock</p>
+        <p class="say">/ ˈkin-däk /</p>
+      </div>
+      <dl class="defs">
+        <div><dt><b>kin</b> <i>noun</i></dt><dd>Your family. The people you belong to, from grandparents to the newest baby.</dd></div>
+        <div><dt><b>dock</b> <i>noun</i></dt><dd>The place you come back to, where everything gets loaded up and lined up for what's next.</dd></div>
+        <div class="whole"><dt><b>KinDock</b></dt><dd>The spot on the wall where your family comes together: everyone's plans, chores, meals and photos in one place.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="together" id="together">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Everyone in the loop</p>
+        <h2>No more "Nobody told me."</h2>
+        <p class="lede">Phones keep plans in separate pockets. KinDock puts them on the wall where the whole family sees them together, kids and grown-ups alike, with no app to open and no account for anyone.</p>
+      </div>
+      <div class="moments">
+        <article class="moment">
+          <p class="time">7:15 AM</p>
+          <h3>The morning rush</h3>
+          <p>Leo sees the dentist is at 9, Emma sees it's library day, and Dad sees he's on pickup. Nobody asked a single question.</p>
+        </article>
+        <article class="moment">
+          <p class="time">3:40 PM</p>
+          <h3>After school</h3>
+          <p>The kids check their own chore lists, find the note Mom left, and see soccer starts at 4:30. You get a quieter afternoon.</p>
+        </article>
+        <article class="moment">
+          <p class="time">Sunday night</p>
+          <h3>Planning the week</h3>
+          <p>Gather at the board, look at the week together, pick the dinners and send the ingredients to the grocery list in one tap.</p>
+        </article>
+        <article class="moment">
+          <p class="time">Anytime</p>
+          <h3>Grandma's new photos</h3>
+          <p>She adds pictures to the family's shared album, and they show up on your wall within the hour. Everyone sees them, every day.</p>
+        </article>
+      </div>
+      <div class="together-points">
+        <div><h3>Every person, their own color</h3><p>Each calendar and to-do is matched to a family member, so you can tell whose event is whose from across the room.</p></div>
+        <div><h3>Change it from any phone</h3><p>Anyone on your Wi-Fi can add an event, a grocery item or a note. It's on the wall within seconds for everyone to see.</p></div>
+        <div><h3>Kids included</h3><p>Pictures for every chore and big touch targets mean the youngest can read the board, and the oldest can run it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chores" id="chores">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Chores &amp; rewards</p>
+        <h2>Kids don't need another reminder. They need a reason.</h2>
+        <p class="lede">KinDock turns the chore chart into something kids walk up to on their own. Every chore checked off earns stars, the board cheers, and the stars add up to a reward the whole family can see coming.</p>
+      </div>
+
+      <div class="chores-grid">
+        <ol class="loop">
+          <li><div><h3>They tap their own picture</h3><p>Each child has a face or a fun avatar on the board. One tap opens their list for today, sorted into Morning, After school and Evening, with a picture for every chore so even non-readers know what's next.</p></div></li>
+          <li><div><h3>They check it off, and the board celebrates</h3><p>Tap "Make your bed" and it turns pink with a check mark, a cheer plays and confetti flies. Finish the whole list and the celebration gets bigger.</p></div></li>
+          <li><div><h3>Stars add up all week</h3><p>Every chore is worth 1, 2 or 3 stars. Their running total sits right on the board next to their name, so a sibling's lead is a little extra motivation.</p></div></li>
+          <li><div><h3>They earn the reward you chose</h3><p>Set a weekly goal like "20 stars = movie night" or "Pick Friday dinner". A progress bar shows exactly how close they are, and how many stars are left to go.</p></div></li>
+        </ol>
+
+        <div class="demo" id="demo" aria-label="Try the chore chart">
+          <canvas id="confetti" aria-hidden="true"></canvas>
+          <div class="demo-top">
+            <div class="kid" aria-hidden="true">🦊</div>
+            <div class="demo-title">
+              <h3>Emma's chores</h3>
+              <div class="bar"><i id="d-bar"></i></div>
+              <p class="demo-sub" id="d-count">0 of 4 done</p>
+            </div>
+            <div class="stars"><b><span aria-hidden="true">★</span><output id="d-stars">14</output></b><small>stars this week</small></div>
+          </div>
+          <div class="reward"><span>Goal</span><div class="rbar"><i id="d-rbar"></i></div><strong id="d-left">6 more · Movie night</strong></div>
+          <div class="tiles" id="d-tiles">
+            <button type="button" class="tile" data-stars="1" aria-pressed="false"><span class="ic" aria-hidden="true">🛏️</span>Make your bed<span class="st" aria-hidden="true">★</span></button>
+            <button type="button" class="tile" data-stars="1" aria-pressed="false"><span class="ic" aria-hidden="true">🪥</span>Brush teeth<span class="st" aria-hidden="true">★</span></button>
+            <button type="button" class="tile" data-stars="2" aria-pressed="false"><span class="ic" aria-hidden="true">🐶</span>Feed the dog<span class="st" aria-hidden="true">★★</span></button>
+            <button type="button" class="tile" data-stars="2" aria-pressed="false"><span class="ic" aria-hidden="true">📚</span>Homework<span class="st" aria-hidden="true">★★</span></button>
+          </div>
+          <p class="done-msg" id="d-msg" aria-live="polite"></p>
+          <div class="demo-foot"><span>Tap a chore, just like on the board.</span><button type="button" id="d-reset">Start over</button></div>
+        </div>
+      </div>
+
+      <div class="parent-row">
+        <div><h3>You set the rules</h3><p>Pick which days each chore is due, the time of day, and how many stars it's worth. Chores for Mondays don't clutter Saturdays.</p></div>
+        <div><h3>Say it out loud</h3><p>With the optional speakerphone, "Emma made her bed" checks it off from across the kitchen. Voice is understood on the board itself.</p></div>
+        <div><h3>Fair for every kid</h3><p>Each child gets their own color, list and reward. Ages 4 and 14 can share one board without sharing one chart.</p></div>
+      </div>
+
+      <figure class="shot-wide" style="margin-inline:0">
+        <img src="img/chores-cheer.jpg" width="1400" height="788" loading="lazy" alt="The chore chart on a KinDock board: Emma has finished 2 of 5 chores, has 3 stars this week and needs 17 more for movie night. Confetti is falling.">
+      </figure>
+      <p class="caption">The real chore chart, right after two chores were checked off. Confetti and all.</p>
+    </div>
+  </section>
+
+  <section class="privacy" id="privacy">
+    <div class="wrap">
+      <div class="privacy-panel">
+        <div class="privacy-head">
+          <p class="eyebrow">Private by design</p>
+          <h2>Your family's life is not our data.</h2>
+          <p class="lede">Your schedule, your kids' names and photos, your chores and your notes are kept on the board in your home. There is no KinDock account and no KinDock cloud, so there is nothing of yours on our servers to sell, share or lose.</p>
+        </div>
+        <div class="privacy-grid">
+          <div class="pcol">
+            <h3><span class="dot home" aria-hidden="true"></span>Stays in your home</h3>
+            <ul>
+              <li>Family members, photos of the kids, chores and stars</li>
+              <li>To-dos, grocery lists, meals and sticky notes</li>
+              <li>Your shared-album photos, copied onto the board</li>
+              <li>Everything you say to it: voice is understood on the board, and recordings never leave it</li>
+              <li>Backups, as a file you download and keep</li>
+            </ul>
+          </div>
+          <div class="pcol">
+            <h3><span class="dot net" aria-hidden="true"></span>All the board fetches</h3>
+            <ul>
+              <li>Weather for your town</li>
+              <li>Your calendars, read straight from Google, Apple or Microsoft. KinDock can show them but never change them</li>
+              <li>New photos from the shared albums you choose</li>
+              <li>Software updates, checked once a day</li>
+            </ul>
+            <p class="pnote">No ads. No tracking. No selling your data, because we never have it.</p>
+          </div>
+        </div>
+        <div class="privacy-foot">
+          <span>No account to create</span><span>Grown-up PIN for settings</span><span>Calendar links stay private</span><span>Works on your home Wi-Fi</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Everything on one screen</p>
+        <h2>The whole family's week, where everyone already walks past.</h2>
+      </div>
+      <div class="fgrid">
+        <div class="f"><span class="tag">Calendars</span><h3>Every calendar, one agenda</h3><p>Mom's Google, Dad's iPhone, the school and the soccer team, each in its own color. Pick how many days ahead to show.</p></div>
+        <div class="f"><span class="tag">Family layout</span><h3>A column for each person</h3><p>Their photo, today's events, their to-dos and the notes left for them. Everyone finds their own day at a glance.</p></div>
+        <div class="f"><span class="tag">Lists</span><h3>To-dos, groceries, Costco</h3><p>Make as many lists as you like. Add from the board or any phone, and check things off in the store.</p></div>
+        <div class="f"><span class="tag">Meals</span><h3>"What's for dinner?" answered</h3><p>Plan the week, save family favorites and Taco Tuesdays. One tap sends the week's ingredients to the grocery list.</p></div>
+        <div class="f"><span class="tag">Photos</span><h3>Your albums, always fresh</h3><p>Show a Google Photos or iCloud shared album. Grandma adds pictures, and they appear on your wall within the hour.</p></div>
+        <div class="f"><span class="tag">Sticky notes</span><h3>Notes that don't fall off the fridge</h3><p>"Trash goes out tonight." Leave a colored note for one person or everyone, from the board or your phone.</p></div>
+        <div class="f"><span class="tag">Today card</span><h3>A verse, a quote, a bit of history</h3><p>Bible verse of the day, a quote, or what happened on this day, filtered to stay family-friendly.</p></div>
+        <div class="f"><span class="tag">Weather</span><h3>Today plus 5 days ahead</h3><p>Current conditions, the forecast, rain chances and severe-weather alerts, so nobody leaves without a coat.</p></div>
+        <div class="f"><span class="tag">Kitchen</span><h3>Timers and a quiet night</h3><p>Big kitchen timers, a screen that turns off on schedule at night and wakes when someone walks up or touches it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="layouts">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Make it yours</p>
+        <h2>Four layouts. Wide or tall. Your colors.</h2>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Layouts">
+        <button type="button" role="tab" aria-selected="true" data-l="family">Family</button>
+        <button type="button" role="tab" aria-selected="false" data-l="classic">Classic</button>
+        <button type="button" role="tab" aria-selected="false" data-l="month">Month</button>
+        <button type="button" role="tab" aria-selected="false" data-l="tall">Hung tall</button>
+      </div>
+      <div class="layout-view" role="tabpanel">
+        <figure id="l-fig"><img id="l-img" src="img/board-family.jpg" width="1600" height="900" alt=""></figure>
+        <div><h3 id="l-title">Family</h3><p id="l-text">Everyone gets a column with their photo, today's events, their to-dos and their notes. The Everyone column holds the shared lists and tonight's dinner.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="compare" id="compare">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Why KinDock</p>
+        <h2>The good parts aren't locked behind a subscription.</h2>
+        <p class="lede">Many family displays sell you the screen, then charge every year for the features families actually use. KinDock includes them.</p>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th scope="col"></th><th scope="col" class="us">KinDock</th><th scope="col">Many other family displays</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Chore stars and rewards</th><td class="us">Included</td><td class="them">Often part of a paid yearly plan</td></tr>
+            <tr><th scope="row">Meal planning and grocery lists</th><td class="us">Included</td><td class="them">Meal planning often needs the paid plan</td></tr>
+            <tr><th scope="row">Photo slideshow and screen saver</th><td class="us">Included, from shared albums</td><td class="them">Often part of a paid yearly plan</td></tr>
+            <tr><th scope="row">Ongoing cost</th><td class="us">No monthly fee</td><td class="them">Commonly $79 to $108 a year</td></tr>
+            <tr><th scope="row">Your family's information</th><td class="us">Stays on the board in your home, never on our servers</td><td class="them">Kept in the company's cloud account</td></tr>
+            <tr><th scope="row">Voice commands</th><td class="us">Understood on the board, nothing sent online</td><td class="them">Varies; often a cloud assistant</td></tr>
+            <tr><th scope="row">Screen</th><td class="us">Framed display, or the TV or monitor you choose</td><td class="them">Usually their own screen only</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fine">Comparison based on the published plans of popular touchscreen family calendars as of November 2026. Features and prices change; check each maker's site for current details.</p>
+    </div>
+  </section>
+
+  <section id="setup" style="padding-top:0">
+    <div class="wrap">
+      <div class="card">
+        <p class="eyebrow">Ten-minute setup</p>
+        <h3>If you can scan a QR code, you can set it up</h3>
+        <ol>
+          <li>Plug it in. The board starts by itself.</li>
+          <li>Scan the first code to join the board, then the second to pick your home Wi-Fi.</li>
+          <li>Scan the setup code and add your family, calendars and photos from your phone.</li>
+          <li>Updates install overnight on their own. Your settings and photos are never touched.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head"><p class="eyebrow">Questions</p><h2>Good questions, plain answers</h2></div>
+      <div class="faq">
+        <details><summary>Where is my family's information stored?</summary><p>On the board in your home. KinDock has no accounts and no cloud servers, so your schedule, kids' names, photos, chores and notes are never uploaded to us. The board reads your calendars and shared albums directly from Google, Apple or Microsoft, the same services you already use.</p></details>
+        <details><summary>Do I have to pay every month?</summary><p>No. Chores and rewards, meal planning, lists, photos and updates are all included. There is no subscription.</p></details>
+        <details><summary>Which calendars work?</summary><p>Google Calendar, iPhone and iCloud calendars, Outlook and Microsoft 365, and any school, sports or church calendar with a "subscribe" or iCal link. Each one shows in its own color, and you can match a calendar to a person.</p></details>
+        <details><summary>How old do kids need to be for the chore chart?</summary><p>If they can tap a picture, they can use it. Every chore has a picture as well as a name, so pre-readers do fine. Older kids like seeing their stars climb toward a reward they picked.</p></details>
+        <details><summary>Can the kids change the settings?</summary><p>Set a PIN and only someone who knows it can change settings. Kids can still check off their chores, add to lists and leave notes on the board.</p></details>
+        <details><summary>Does it need a touch screen?</summary><p>No. A touch screen is best for the chore chart, but KinDock also works as a display on any TV or monitor, managed from your phone. Every list shows on the board without tapping.</p></details>
+        <details><summary>What happens if the internet goes out?</summary><p>The board keeps showing your photos, lists and chores, and catches up on calendars and weather when the internet comes back.</p></details>
+        <details><summary>Can the whole family use the phone setup?</summary><p>Yes. Anyone on your home Wi-Fi can open Setup and add it to their phone's home screen like an app. A to-do added on a phone shows on the board within seconds.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="final" id="get" style="padding-top:0">
+    <div class="wrap">
+      <div class="card">
+        <div style="display:grid;gap:12px">
+          <p class="eyebrow">Get KinDock</p>
+          <h2>Get everyone on the same page, and the chores done too.</h2>
+          <p class="lede">Questions or ready to order? Email us and we'll help you pick the right size for your wall.</p>
+        </div>
+        <a class="btn btn-primary" href="mailto:contact@designson300.com?subject=KinDock">Email contact@designson300.com</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>KinDock: kin, your family; dock, the place you come together · kindock.family</span>
+    <span>Made by Designs on 300, LLC · <a href="mailto:support@designson300.com">support@designson300.com</a></span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  // Try-it chore chart
+  const tiles = [...document.querySelectorAll('#d-tiles .tile')];
+  const BASE = 14, GOAL = 20;
+  const $ = id => document.getElementById(id);
+  const canvas = $('confetti'), ctx = canvas.getContext('2d');
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let bits = [], raf = 0;
+  function burst(x, y, n) {
+    if (calm) return;
+    const r = canvas.getBoundingClientRect(); canvas.width = r.width * devicePixelRatio; canvas.height = r.height * devicePixelRatio;
+    const colors = ['#ffe38a', '#ffb8cf', '#a9d4ff', '#bfe8a8', '#f2a65a', '#ffd257'];
+    for (let i = 0; i < n; i++) bits.push({ x: x * devicePixelRatio, y: y * devicePixelRatio, vx: (Math.random() - .5) * 14, vy: -Math.random() * 14 - 4, s: 4 + Math.random() * 6, c: colors[i % colors.length], r: Math.random() * 6, life: 90 + Math.random() * 40 });
+    if (!raf) tick();
+  }
+  function tick() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    bits = bits.filter(b => b.life-- > 0);
+    for (const b of bits) { b.vy += .45; b.x += b.vx; b.y += b.vy; b.r += .2; ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.r); ctx.fillStyle = b.c; ctx.fillRect(-b.s / 2, -b.s / 2, b.s, b.s * .6); ctx.restore(); }
+    raf = bits.length ? requestAnimationFrame(tick) : 0;
+  }
+  function render() {
+    const done = tiles.filter(t => t.getAttribute('aria-pressed') === 'true');
+    const stars = BASE + done.reduce((s, t) => s + +t.dataset.stars, 0);
+    $('d-bar').style.width = (done.length / tiles.length * 100) + '%';
+    $('d-count').textContent = `${done.length} of ${tiles.length} done`;
+    $('d-stars').textContent = stars;
+    $('d-rbar').style.width = Math.min(100, stars / GOAL * 100) + '%';
+    $('d-left').textContent = stars >= GOAL ? 'Movie night earned!' : `${GOAL - stars} more · Movie night`;
+    $('d-msg').textContent = done.length === tiles.length ? 'All done! Movie night is unlocked.' : '';
+  }
+  tiles.forEach(t => t.addEventListener('click', () => {
+    const on = t.getAttribute('aria-pressed') !== 'true';
+    t.setAttribute('aria-pressed', on);
+    render();
+    if (on) {
+      const d = $('demo').getBoundingClientRect(), r = t.getBoundingClientRect();
+      const all = tiles.every(x => x.getAttribute('aria-pressed') === 'true');
+      burst(r.left - d.left + r.width / 2, r.top - d.top + r.height / 2, all ? 160 : 36);
+    }
+  }));
+  $('d-reset').addEventListener('click', () => { tiles.forEach(t => t.setAttribute('aria-pressed', 'false')); render(); });
+  render();
+
+  // Layout tabs
+  const L = {
+    family: ['img/board-family.jpg', 'Family', "Everyone gets a column with their photo, today's events, their to-dos and their notes. The Everyone column holds the shared lists and tonight's dinner.", false],
+    classic: ['img/board-classic.jpg', 'Classic', 'A big clock with the weather and forecast, the agenda for the next few days, then chores, to-dos, lists and sticky notes.', false],
+    month: ['img/board-month.jpg', 'Month', 'The whole month at a glance, with birthdays, school days off and Taco Tuesday, beside the clock, chores and lists.', false],
+    tall: ['img/board-portrait.jpg', 'Hung tall', 'Turn the screen on its side for a hallway or a picture-frame build. Every layout rearranges itself to fit, and a photo panel can sit at the top or the bottom.', true]
+  };
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+    const [src, title, text, tall] = L[b.dataset.l];
+    $('l-img').src = src; $('l-img').alt = `KinDock in the ${title} layout`; $('l-title').textContent = title; $('l-text').textContent = text;
+    $('l-fig').classList.toggle('tall', tall);
+  }));
+})();
+</script>
+</body>
+</html>
