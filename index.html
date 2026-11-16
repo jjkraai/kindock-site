@@ -461,13 +461,13 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">Make it yours</p>
-        <h2>Four layouts. Wide or tall. Your colors.</h2>
+        <h2>Four layouts. Horizontal or vertical. Your colors.</h2>
       </div>
       <div class="tabs" role="tablist" aria-label="Layouts">
         <button type="button" role="tab" aria-selected="true" data-l="family">Family</button>
         <button type="button" role="tab" aria-selected="false" data-l="classic">Classic</button>
         <button type="button" role="tab" aria-selected="false" data-l="month">Month</button>
-        <button type="button" role="tab" aria-selected="false" data-l="tall">Hung tall</button>
+        <button type="button" role="tab" aria-selected="false" data-l="tall">Vertical</button>
       </div>
       <div class="layout-view" role="tabpanel">
         <figure id="l-fig"><img id="l-img" src="img/board-family.jpg" width="1600" height="900" alt=""></figure>
@@ -603,7 +603,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     family: ['img/board-family.jpg', 'Family', "Everyone gets a column with their photo, today's events, their to-dos and their notes. The Everyone column holds the shared lists and tonight's dinner.", false],
     classic: ['img/board-classic.jpg', 'Classic', 'A big clock with the weather and forecast, the agenda for the next few days, then chores, to-dos, lists and sticky notes.', false],
     month: ['img/board-month.jpg', 'Month', 'The whole month at a glance, with birthdays, school days off and Taco Tuesday, beside the clock, chores and lists.', false],
-    tall: ['img/board-portrait.jpg', 'Hung tall', 'Turn the screen on its side for a hallway or a picture-frame build. Every layout rearranges itself to fit, and a photo panel can sit at the top or the bottom.', true]
+    tall: ['img/board-portrait.jpg', 'Vertical', 'Turn the screen on its side for a hallway or a picture-frame build. Every layout rearranges itself to fit, and a photo panel can sit at the top or the bottom.', true]
   };
   document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
     document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
